@@ -1,0 +1,10 @@
+
+
+root = true
+    
+[*]
+#responsável por definir o estilo de indentação, que é basicamente o uso de espaços em vez de tabs.
+indent_style = space    
+
+#define o número de espaços para indentar
+indent_size = 2
