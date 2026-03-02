@@ -1,4 +1,4 @@
-export default function createKeyboardListener() {
+export default function createKeyboardListener(document) {
   //meu subscriber, onde os observers se inscrevem para receber as notificações de eventos de teclado. Ele tem uma função subscribe para adicionar os observers e uma função notifyAll para notificar todos os observers quando um evento de teclado ocorre.
   const state = {
     observes: [],

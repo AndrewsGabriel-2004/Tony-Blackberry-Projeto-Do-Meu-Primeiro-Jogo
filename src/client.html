@@ -21,8 +21,9 @@
   <body>
     <canvas id="screen" width="480" height="480"></canvas>
     <script type="module">
-      import { createKeyboardListener } from "./input_layer.js";
-      import { createGame } from "./game_layer.js";
+      import createKeyboardListener from "./input_layer.js";
+      import createGame from "./game_layer.js";
+      import renderScreen from "./apresentation_layer.js";
 
       //camada de apresentação do jogo, onde o canvas é desenhado e os elementos são renderizados
       const screen = document.getElementById("screen");
@@ -31,37 +32,25 @@
       const imgApple = new Image();
       imgApple.src = "energy_pixel.png";
 
-      quadSize = 48; //Uso para definir o tamanho do energy e dos players
+      const quadSize = 48; //Uso para definir o tamanho do energy e dos players
 
       context.scale(quadSize, quadSize); //aqui é para ajustar a escala do canvas, para que os elementos sejam desenhados no tamanho correto
 
       const game = createGame();
-      const keyboardListener = createKeyboardListener(); //INPUT LAYER
+      const keyboardListener = createKeyboardListener(document); //INPUT LAYER
       keyboardListener.subscribe(game.movePlayer);
+
+      game.addPlayers({ playerID: "player1", playerX: 1, playerY: 1 });
+      game.addPlayers({ playerID: "player1", playerX: 3, playerY: 4 });
+      game.addPlayers({ playerID: "player2", playerX: 2, playerY: 6 });
+      game.addEnergy({ energyID: "energy2", energyX: 5, energyY: 9 });
+      game.addEnergy({ energyID: "energy1", energyX: 2, energyY: 2 });
 
       imgApple.onload = () => {
         //loading layer
-        renderScreen(); //aqui é para garantir que a imagem seja carregada antes de
+        renderScreen(game, requestAnimationFrame, screen, imgApple); //aqui é para garantir que a imagem seja carregada antes de
         // tentar desenhá-la no canvas, evitando erros de renderização
       };
-
-      function renderScreen() {
-        //GAME SHOW LAYER
-        //apresentation layer
-        context.fillStyle = "white";
-        context.clearRect(0, 0, 10, 10); //da o clean do tamanho do canvas, para evitar que os elementos anteriores fiquem na tela
-
-        for (const playerID in game.state.players) {
-          const player = game.state.players[playerID];
-          context.fillStyle = "green";
-          context.fillRect(player.x, player.y, 1, 1);
-        }
-        for (const energyID in game.state.energy) {
-          const energy = game.state.energy[energyID];
-          context.drawImage(imgApple, energy.x, energy.y, 1, 1);
-        }
-        requestAnimationFrame(renderScreen);
-      }
     </script>
   </body>
 </html>
