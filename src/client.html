@@ -20,7 +20,10 @@
   </head>
   <body>
     <canvas id="screen" width="480" height="480"></canvas>
-    <script>
+    <script type="module">
+      import { createKeyboardListener } from "./input_layer.js";
+      import { createGame } from "./game_layer.js";
+
       //camada de apresentação do jogo, onde o canvas é desenhado e os elementos são renderizados
       const screen = document.getElementById("screen");
       const context = screen.getContext("2d");
@@ -32,127 +35,9 @@
 
       context.scale(quadSize, quadSize); //aqui é para ajustar a escala do canvas, para que os elementos sejam desenhados no tamanho correto
 
-      function createGame() {
-        //JOGO LAYER
-
-        const state = {
-          players: {},
-          energy: {},
-        };
-
-        function addPlayers(command) {
-          const playerID = command.playerID;
-          const playerX = command.playerX;
-          const playerY = command.playerY;
-
-          state.players[playerID] = {
-            x: playerX,
-            y: playerY,
-          };
-        }
-
-        function removePlayers(command) {
-          const playerID = command.playerID;
-
-          delete state.players[playerID];
-        }
-
-        function addEnergy(command) {
-          const energyID = command.energyID;
-          const energyX = command.energyX;
-          const energyY = command.energyY;
-
-          state.energy[energyID] = {
-            x: energyX,
-            y: energyY,
-          };
-        }
-
-        function removeEnergy(command) {
-          const energyID = command.energyID;
-
-          delete state.energy[energyID];
-        }
-
-        function movePlayer(command) {
-          console.log(`Moving ${command.playerID} with ${command.keyPressed}`);
-
-          const acepptedMoves = {
-            ArrowUp(player) {
-              console.log("Moving player Up");
-              player.y = Math.max(player.y - 1, 0);
-            },
-            ArrowRight(player) {
-              console.log("Moving player Right");
-              player.x = Math.min(player.x + 1, 9);
-            },
-            ArrowDown(player) {
-              console.log("Moving player Down");
-              player.y = Math.min(player.y + 1, 9);
-            },
-            ArrowLeft(player) {
-              console.log("Moving player Left");
-              player.x = Math.max(player.x - 1, 0);
-            },
-          };
-
-          const keyPressed = command.keyPressed;
-          const player = state.players[command.playerID];
-          const moveFunction = acepptedMoves[keyPressed];
-
-          if (player && moveFunction) {
-            moveFunction(player);
-          }
-        }
-        return {
-          addPlayers,
-          removePlayers,
-          addEnergy,
-          removeEnergy,
-          movePlayer,
-          state,
-        };
-      }
-
       const game = createGame();
       const keyboardListener = createKeyboardListener(); //INPUT LAYER
       keyboardListener.subscribe(game.movePlayer);
-
-      function createKeyboardListener() {
-        //meu subscriber, onde os observers se inscrevem para receber as notificações de eventos de teclado. Ele tem uma função subscribe para adicionar os observers e uma função notifyAll para notificar todos os observers quando um evento de teclado ocorre.
-        const state = {
-          observes: [],
-        };
-
-        function subscribe(observerFunction) {
-          state.observes.push(observerFunction);
-        }
-
-        function notifyAll(command) {
-          console.log(`Notifying ${state.observes.length} observers`);
-
-          for (const observerFunction of state.observes) {
-            observerFunction(command);
-          }
-        }
-
-        document.addEventListener("keydown", handleKeydown);
-
-        function handleKeydown(event) {
-          //input layer
-          const keyPressed = event.key;
-
-          const command = {
-            playerID: "player1",
-            keyPressed,
-          };
-
-          notifyAll(command);
-        }
-        return {
-          subscribe,
-        };
-      }
 
       imgApple.onload = () => {
         //loading layer
