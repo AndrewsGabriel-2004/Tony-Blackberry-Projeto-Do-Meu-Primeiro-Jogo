@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Tony Blackberry Industries</title>
+    <style>
+      body {
+        #screen {
+          border: 10px solid #ccc;
+          image-rendering: pixelated;
+          image-rendering: crisp-edges;
+          image-rendering: -moz-crisp-edges;
+          width: 400px;
+          height: 400px; /*basicamente isso aqui é para ajustar o tamanho d
+          canvas e dos elementos dentro dele. O canvas tem 480x480, mas isso é por conta do
+          fato de cada player/energy ter 48 pixels*/
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="screen" width="480" height="480"></canvas>
+    <script>
+      //camada de apresentação do jogo, onde o canvas é desenhado e os elementos são renderizados
+      const screen = document.getElementById("screen");
+      const context = screen.getContext("2d");
+
+      const imgApple = new Image();
+      imgApple.src = "energy_pixel.png";
+
+      quadSize = 48; //Uso para definir o tamanho do energy e dos players
+
+      context.scale(quadSize, quadSize); //aqui é para ajustar a escala do canvas, para que os elementos sejam desenhados no tamanho correto
+
+      const game = {
+        players: {
+          player1: { x: 1, y: 1 },
+          player2: { x: 9, y: 9 },
+        },
+        energy: {
+          energy1: { x: 3, y: 1 },
+        },
+      };
+
+      imgApple.onload = () => {
+        renderScreen(); //aqui é para garantir que a imagem seja carregada antes de
+        // tentar desenhá-la no canvas, evitando erros de renderização
+      };
+
+      function renderScreen() {
+        context.fillStyle = "white";
+        context.clearRect(0, 0, 10, 10); //da o clean do tamanho do canvas, para evitar que os elementos anteriores fiquem na tela
+
+        for (const playerID in game.players) {
+          const player = game.players[playerID];
+          context.fillStyle = "green";
+          context.fillRect(player.x, player.y, 1, 1);
+        }
+        for (const energyID in game.energy) {
+          const energy = game.energy[energyID];
+          context.drawImage(imgApple, energy.x, energy.y, 1, 1);
+        }
+        requestAnimationFrame(renderScreen);
+      }
+    </script>
+  </body>
+</html>
