@@ -32,7 +32,7 @@
 
       context.scale(quadSize, quadSize); //aqui é para ajustar a escala do canvas, para que os elementos sejam desenhados no tamanho correto
 
-      const game = {
+      const state = {
         players: {
           player1: { x: 1, y: 1 },
           player2: { x: 9, y: 9 },
@@ -41,6 +41,65 @@
           energy1: { x: 3, y: 1 },
         },
       };
+
+      function createGame() {
+        function movePlayer(command) {
+          console.log(`Moving ${command.playerID} with ${command.keyPressed}`);
+          const player = state.players[command.playerID];
+          if (command.keyPressed === "ArrowUp") {
+            player.y -= 1;
+          } else if (command.keyPressed === "ArrowDown") {
+            player.y += 1;
+            if (player.y > 9) player.y = 9; //limite inferior do canvas (10 quadrados de 48 pixels cada)
+          } else if (command.keyPressed === "ArrowLeft") {
+            player.x -= 1;
+          } else if (command.keyPressed === "ArrowRight") {
+            player.x += 1;
+            if (player.x > 9) player.x = 9; //limite direito do canvas (10 quadrados de 48 pixels cada)
+          }
+        }
+        return { movePlayer, state };
+      }
+
+      const game = createGame();
+
+      const keyboardListener = createKeyboardListener();
+      keyboardListener.subscribe(game.movePlayer);
+
+      function createKeyboardListener() {
+        const state = {
+          observes: [],
+        };
+
+        function subscribe(observerFunction) {
+          state.observes.push(observerFunction);
+        }
+
+        function notifyAll(command) {
+          console.log(`Notifying ${state.observes.length} observers`);
+
+          for (const observerFunction of state.observes) {
+            observerFunction(command);
+          }
+        }
+
+        document.addEventListener("keydown", handleKeydown);
+
+        function handleKeydown(event) {
+          //input layer
+          const keyPressed = event.key;
+
+          const command = {
+            playerID: "player1",
+            keyPressed,
+          };
+
+          notifyAll(command);
+        }
+        return {
+          subscribe,
+        };
+      }
 
       imgApple.onload = () => {
         renderScreen(); //aqui é para garantir que a imagem seja carregada antes de
@@ -51,13 +110,13 @@
         context.fillStyle = "white";
         context.clearRect(0, 0, 10, 10); //da o clean do tamanho do canvas, para evitar que os elementos anteriores fiquem na tela
 
-        for (const playerID in game.players) {
-          const player = game.players[playerID];
+        for (const playerID in game.state.players) {
+          const player = game.state.players[playerID];
           context.fillStyle = "green";
           context.fillRect(player.x, player.y, 1, 1);
         }
-        for (const energyID in game.energy) {
-          const energy = game.energy[energyID];
+        for (const energyID in game.state.energy) {
+          const energy = game.state.energy[energyID];
           context.drawImage(imgApple, energy.x, energy.y, 1, 1);
         }
         requestAnimationFrame(renderScreen);
