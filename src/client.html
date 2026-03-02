@@ -32,41 +32,94 @@
 
       context.scale(quadSize, quadSize); //aqui é para ajustar a escala do canvas, para que os elementos sejam desenhados no tamanho correto
 
-      const state = {
-        players: {
-          player1: { x: 1, y: 1 },
-          player2: { x: 9, y: 9 },
-        },
-        energy: {
-          energy1: { x: 3, y: 1 },
-        },
-      };
-
       function createGame() {
+        //JOGO LAYER
+
+        const state = {
+          players: {},
+          energy: {},
+        };
+
+        function addPlayers(command) {
+          const playerID = command.playerID;
+          const playerX = command.playerX;
+          const playerY = command.playerY;
+
+          state.players[playerID] = {
+            x: playerX,
+            y: playerY,
+          };
+        }
+
+        function removePlayers(command) {
+          const playerID = command.playerID;
+
+          delete state.players[playerID];
+        }
+
+        function addEnergy(command) {
+          const energyID = command.energyID;
+          const energyX = command.energyX;
+          const energyY = command.energyY;
+
+          state.energy[energyID] = {
+            x: energyX,
+            y: energyY,
+          };
+        }
+
+        function removeEnergy(command) {
+          const energyID = command.energyID;
+
+          delete state.energy[energyID];
+        }
+
         function movePlayer(command) {
           console.log(`Moving ${command.playerID} with ${command.keyPressed}`);
+
+          const acepptedMoves = {
+            ArrowUp(player) {
+              console.log("Moving player Up");
+              player.y = Math.max(player.y - 1, 0);
+            },
+            ArrowRight(player) {
+              console.log("Moving player Right");
+              player.x = Math.min(player.x + 1, 9);
+            },
+            ArrowDown(player) {
+              console.log("Moving player Down");
+              player.y = Math.min(player.y + 1, 9);
+            },
+            ArrowLeft(player) {
+              console.log("Moving player Left");
+              player.x = Math.max(player.x - 1, 0);
+            },
+          };
+
+          const keyPressed = command.keyPressed;
           const player = state.players[command.playerID];
-          if (command.keyPressed === "ArrowUp") {
-            player.y -= 1;
-          } else if (command.keyPressed === "ArrowDown") {
-            player.y += 1;
-            if (player.y > 9) player.y = 9; //limite inferior do canvas (10 quadrados de 48 pixels cada)
-          } else if (command.keyPressed === "ArrowLeft") {
-            player.x -= 1;
-          } else if (command.keyPressed === "ArrowRight") {
-            player.x += 1;
-            if (player.x > 9) player.x = 9; //limite direito do canvas (10 quadrados de 48 pixels cada)
+          const moveFunction = acepptedMoves[keyPressed];
+
+          if (player && moveFunction) {
+            moveFunction(player);
           }
         }
-        return { movePlayer, state };
+        return {
+          addPlayers,
+          removePlayers,
+          addEnergy,
+          removeEnergy,
+          movePlayer,
+          state,
+        };
       }
 
       const game = createGame();
-
-      const keyboardListener = createKeyboardListener();
+      const keyboardListener = createKeyboardListener(); //INPUT LAYER
       keyboardListener.subscribe(game.movePlayer);
 
       function createKeyboardListener() {
+        //meu subscriber, onde os observers se inscrevem para receber as notificações de eventos de teclado. Ele tem uma função subscribe para adicionar os observers e uma função notifyAll para notificar todos os observers quando um evento de teclado ocorre.
         const state = {
           observes: [],
         };
@@ -102,11 +155,14 @@
       }
 
       imgApple.onload = () => {
+        //loading layer
         renderScreen(); //aqui é para garantir que a imagem seja carregada antes de
         // tentar desenhá-la no canvas, evitando erros de renderização
       };
 
       function renderScreen() {
+        //GAME SHOW LAYER
+        //apresentation layer
         context.fillStyle = "white";
         context.clearRect(0, 0, 10, 10); //da o clean do tamanho do canvas, para evitar que os elementos anteriores fiquem na tela
 
