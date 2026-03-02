@@ -1,103 +1,141 @@
-# 🎮 Evolução dos Videogames — Game Design
+# 🎮 Estrutura do Jogo – Evolução dos Videogames
 
-## 📌 1. Conceito do Jogo
+## 📌 1. Conceito Geral
 
-O jogo será multiplayer, em visão top-down, onde vários jogadores competem em um campo coletando objetos que representam elementos da história dos videogames.
+O jogo será um multiplayer em um campo 2D (visão top-down), onde vários jogadores competem coletando objetos que representam elementos da história dos videogames.
 
-O jogo será dividido por fases, onde cada fase representa uma geração dos videogames.
+O jogo será dividido em fases. Cada fase representa uma geração específica da evolução dos videogames.
 
-O objetivo é coletar os elementos corretos da geração atual e evitar coletar elementos incorretos.
-
----
-
-## 🕹️ 2. Mecânica Principal
-
-- Jogadores se movem pelo mapa.
-- Objetos surgem aleatoriamente no campo.
-- Cada objeto pertence a uma geração específica.
-- Se o jogador coletar um objeto correto da geração atual → ganha ponto.
-- Se coletar um objeto de outra geração → perde ponto.
+Os jogadores devem coletar apenas os objetos que pertencem à geração atual.
 
 ---
 
-## 🧠 3. Sistema de Gerações
+## 🗺️ 2. Estrutura do Campo
 
-O jogo será dividido nas seguintes gerações:
+- O jogo acontece em um mapa 2D desenhado no Canvas.
+- Os jogadores são representados por quadrados.
+- Os objetos aparecem em posições aleatórias do mapa.
+- Todos os jogadores disputam os mesmos objetos.
 
-### 🟣 Geração 1 (1970–1980)
-Exemplos de elementos corretos:
+---
+
+## 👤 3. Jogadores
+
+Cada jogador terá:
+
+- Posição (x, y)
+- Velocidade
+- Pontuação
+- Identificador (nome ou número)
+
+O jogador pode se mover pelo mapa usando o teclado.
+
+---
+
+## 📦 4. Objetos
+
+Cada objeto terá:
+
+- Nome
+- Geração à qual pertence
+- Posição (x, y)
+- Status (ativo ou coletado)
+
+Exemplo conceitual:
+
+Objeto:
+- Nome: "Atari 2600"
+- Geração: 1
+
+---
+
+## 🧠 5. Sistema de Gerações
+
+O jogo será dividido em fases, onde cada fase representa uma geração histórica.
+
+Exemplo de gerações:
+
+### Geração 1 (1970–1980)
+Elementos corretos:
 - Pong
 - Atari 2600
-- Jogos em 2D simples
 - Cartuchos
+- Jogos 2D simples
 
 Elementos incorretos:
-- PlayStation
+- PlayStation 5
 - Jogos online
-- Gráficos 3D
+- Realidade Virtual
 
 ---
 
-### 🔵 Geração 2 (1990)
+### Geração 2 (1990)
 Elementos corretos:
 - Super Nintendo
 - Mega Drive
 - Jogos 16 bits
-- CDs começando a surgir
-
-Elementos incorretos:
-- Jogos mobile
-- Realidade virtual
-
----
-
-### 🟢 Geração 3 (2000)
-Elementos corretos:
-- PlayStation 2
-- Xbox
-- Jogos em 3D mais avançados
-- Jogos online começando a crescer
+- CDs
 
 Elementos incorretos:
 - Cloud Gaming
-- VR avançado
+- Jogos Mobile
 
 ---
 
-### 🟡 Geração 4 (Atualidade)
+### Geração 3 (2000)
+Elementos corretos:
+- PlayStation 2
+- Xbox
+- Jogos 3D avançados
+- Multiplayer online
+
+Elementos incorretos:
+- Streaming de jogos
+- VR moderno
+
+---
+
+### Geração Atual
 Elementos corretos:
 - PlayStation 5
 - Xbox Series X
 - Jogos em nuvem
 - Realidade Virtual
-- Jogos mobile
+- Jogos Mobile
 
 ---
 
-## 🏆 4. Sistema de Pontuação
+## 🎯 6. Sistema de Pontuação
 
-- +1 ponto para cada objeto correto.
-- -1 ponto para objeto incorreto.
-- Vence quem tiver mais pontos ao final das fases.
+- Se o jogador coletar um objeto da geração atual → +1 ponto.
+- Se coletar um objeto de outra geração → -1 ponto.
+
+O objeto desaparece após ser coletado.
 
 ---
 
-## ⏱️ 5. Sistema de Fases
+## ⏱️ 7. Sistema de Fases
 
-- Cada fase representa uma geração.
 - Cada fase tem tempo limitado (ex: 2 minutos).
+- Durante a fase, apenas uma geração é válida.
 - Ao final do tempo, o jogo avança para a próxima geração.
+- Os objetos passam a pertencer à nova geração.
 
 ---
 
-## 👥 6. Multiplayer
+## 🏆 8. Condição de Vitória
 
-- Vários jogadores competem simultaneamente.
-- Todos veem os mesmos objetos no mapa.
-- Ranking é mostrado ao final de cada fase.
+- Após todas as gerações serem concluídas, vence o jogador com maior pontuação total.
+- O ranking final é exibido na tela.
 
 ---
 
-## 🎯 7. Objetivo Final
+## 🔄 9. Fluxo do Jogo
 
-Vencer sendo o jogador que mais acertar elementos históricos das gerações dos videogames.
+1. Tela inicial
+2. Início da Fase 1 (Geração 1)
+3. Jogadores coletam objetos
+4. Tempo acaba
+5. Início da próxima geração
+6. Repetir até última geração
+7. Tela final com ranking
