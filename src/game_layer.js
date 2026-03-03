@@ -4,7 +4,7 @@ export default function createGame() {
   const state = {
     players: {},
     energy: {},
-    gridSize: 10,
+    gridSize: 20,
   };
 
   const observers = [];
@@ -39,6 +39,7 @@ export default function createGame() {
     state.players[playerID] = {
       x: playerX,
       y: playerY,
+      score: 0,
     };
 
     notifyAll({
@@ -94,22 +95,20 @@ export default function createGame() {
   function movePlayer(command) {
     notifyAll(command);
 
+    const grid = state.gridSize;
+
     const acepptedMoves = {
       ArrowUp(player) {
-        console.log("Moving player Up");
-        player.y = Math.max(player.y - 1, 0);
-      },
-      ArrowRight(player) {
-        console.log("Moving player Right");
-        player.x = Math.min(player.x + 1, 9);
+        player.y = (player.y - 1 + grid) % grid; // sai pelo topo → aparece embaixo
       },
       ArrowDown(player) {
-        console.log("Moving player Down");
-        player.y = Math.min(player.y + 1, 9);
+        player.y = (player.y + 1) % grid; // sai embaixo → aparece no topo
       },
       ArrowLeft(player) {
-        console.log("Moving player Left");
-        player.x = Math.max(player.x - 1, 0);
+        player.x = (player.x - 1 + grid) % grid; // sai pela esquerda → aparece na direita
+      },
+      ArrowRight(player) {
+        player.x = (player.x + 1) % grid; // sai pela direita → aparece na esquerda
       },
     };
 
@@ -133,7 +132,13 @@ export default function createGame() {
 
       if (player.x === energy.x && player.y === energy.y) {
         console.log(`Player ${playerID} collected energy ${energyID}`);
+        player.score += 1;
         removeEnergy({ energyID });
+        notifyAll({
+          type: "score-update",
+          playerID: playerID,
+          score: player.score,
+        });
       }
     }
   }
