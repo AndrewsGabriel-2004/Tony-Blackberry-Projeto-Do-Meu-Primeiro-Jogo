@@ -3,6 +3,7 @@ export default function renderScreen(
   requestAnimationFrame,
   screen,
   imgApple,
+  currentPlayerID,
 ) {
   const context = screen.getContext("2d");
   context.fillStyle = "white";
@@ -17,7 +18,21 @@ export default function renderScreen(
     const energy = game.state.energy[energyID];
     context.drawImage(imgApple, energy.x, energy.y, 1, 1);
   }
+
+  const currentPlayer = game.state.players[currentPlayerID];
+
+  if (currentPlayer) {
+    context.fillStyle = "red";
+    context.fillRect(currentPlayer.x, currentPlayer.y, 1, 1);
+  }
+
   requestAnimationFrame(() =>
-    renderScreen(game, requestAnimationFrame, screen, imgApple),
+    renderScreen(
+      game,
+      requestAnimationFrame,
+      screen,
+      imgApple,
+      currentPlayerID,
+    ),
   );
 }

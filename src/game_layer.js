@@ -6,32 +6,77 @@ export default function createGame() {
     energy: {},
   };
 
+  const observers = [];
+
+  function start() {
+    const frequency = 2000;
+
+    setInterval(addEnergy, frequency);
+  }
+
+  function subscribe(observerFunction) {
+    observers.push(observerFunction);
+  }
+
+  function notifyAll(command) {
+    for (const observerFunction of observers) {
+      observerFunction(command);
+    }
+  }
+
+  function setState(newState) {
+    Object.assign(state, newState);
+  }
+
   function addPlayers(command) {
     const playerID = command.playerID;
-    const playerX = command.playerX;
-    const playerY = command.playerY;
+    const playerX =
+      "playerX" in command ? command.playerX : Math.floor(Math.random() * 10);
+    const playerY =
+      "playerY" in command ? command.playerY : Math.floor(Math.random() * 10);
 
     state.players[playerID] = {
       x: playerX,
       y: playerY,
     };
+
+    notifyAll({
+      type: "add-players",
+      playerID: playerID,
+      playerX: playerX,
+      playerY: playerY,
+    });
   }
 
   function removePlayers(command) {
     const playerID = command.playerID;
 
     delete state.players[playerID];
+
+    notifyAll({
+      type: "remove-players",
+      playerID: playerID,
+    });
   }
 
   function addEnergy(command) {
-    const energyID = command.energyID;
-    const energyX = command.energyX;
-    const energyY = command.energyY;
+    const energyID = command
+      ? command.energyID
+      : Math.floor(Math.random() * 10000000);
+    const energyX = command ? command.energyX : Math.floor(Math.random() * 10);
+    const energyY = command ? command.energyY : Math.floor(Math.random() * 10);
 
     state.energy[energyID] = {
       x: energyX,
       y: energyY,
     };
+
+    notifyAll({
+      type: "add-energy",
+      energyID: energyID,
+      energyX: energyX,
+      energyY: energyY,
+    });
   }
 
   function removeEnergy(command) {
@@ -41,7 +86,7 @@ export default function createGame() {
   }
 
   function movePlayer(command) {
-    console.log(`Moving ${command.playerID} with ${command.keyPressed}`);
+    notifyAll(command);
 
     const acepptedMoves = {
       ArrowUp(player) {
@@ -94,5 +139,8 @@ export default function createGame() {
     removeEnergy,
     movePlayer,
     state,
+    setState,
+    subscribe,
+    start,
   };
 }

@@ -1,0 +1,16 @@
+{
+  "name": "tonyblackbarryindustries",
+  "version": "1.0.0",
+  "description": "Tony Blackberry é um projeto feito em conjunto com alguns colegas para a apresentação de um game sobre a evolução dos Vídeo Games ao longo da história, na matéria de Introdução à Ciência da Computação.",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3"
+  }
+}
