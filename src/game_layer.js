@@ -4,6 +4,7 @@ export default function createGame() {
   const state = {
     players: {},
     energy: {},
+    gridSize: 10,
   };
 
   const observers = [];
@@ -83,6 +84,11 @@ export default function createGame() {
     const energyID = command.energyID;
 
     delete state.energy[energyID];
+
+    notifyAll({
+      type: "remove-energy",
+      energyID: energyID,
+    });
   }
 
   function movePlayer(command) {

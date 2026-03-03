@@ -7,7 +7,8 @@ export default function renderScreen(
 ) {
   const context = screen.getContext("2d");
   context.fillStyle = "white";
-  context.clearRect(0, 0, 10, 10); //da o clean do tamanho do canvas, para evitar que os elementos anteriores fiquem na tela
+  const gridSize = game.state.gridSize || 10;
+  context.clearRect(0, 0, gridSize, gridSize); //da o clean do tamanho do canvas, para evitar que os elementos anteriores fiquem na tela
 
   for (const playerID in game.state.players) {
     const player = game.state.players[playerID];

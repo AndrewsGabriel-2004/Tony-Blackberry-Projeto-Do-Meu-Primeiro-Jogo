@@ -64,7 +64,14 @@
       socket.on("setup", (state) => {
         const playerID = socket.id;
         game.setState(state);
-        keyboardListener.registerPlayerID(playerID); //aqui é para registrar o playerID no input layer, para que os comandos de teclado sejam associados ao player correto
+
+        // Reajusta o canvas com base no gridSize do servidor
+        const gridSize = state.gridSize || 10;
+        canvas.width = gridSize * quadSize;
+        canvas.height = gridSize * quadSize;
+        context.setTransform(quadSize, 0, 0, quadSize, 0, 0); // reseta e reaplica scale
+
+        keyboardListener.registerPlayerID(playerID);
         keyboardListener.subscribe(game.movePlayer);
         keyboardListener.subscribe((command) => {
           socket.emit("move-player", command);
