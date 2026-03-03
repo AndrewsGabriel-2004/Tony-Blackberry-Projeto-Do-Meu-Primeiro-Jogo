@@ -18,7 +18,7 @@ export default function renderScreen(
     context.save();
     context.setTransform(1, 0, 0, 1, 0, 0); // sai da escala do canvas para escrever texto
     const quadSize = screen.width / (game.state.gridSize || 10);
-    context.fillStyle = "black";
+    context.fillStyle = "white";
     context.font = "10px Arial";
     context.fillText(
       player.score ?? 0,
