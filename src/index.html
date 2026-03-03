@@ -40,8 +40,92 @@
         display: block;
       }
 
-      #scoreboard {
+      #side-panel {
         width: 240px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      /* COUNTDOWN */
+      #countdown-control {
+        background: #16213e;
+        border: 1px solid #0f3460;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      }
+
+      #countdown-control-header {
+        background: #0f3460;
+        padding: 12px 16px;
+        color: #e94560;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      #countdown-control-body {
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      #timer-display {
+        text-align: center;
+        font-size: 32px;
+        font-weight: bold;
+        color: #e94560;
+        letter-spacing: 3px;
+        min-height: 40px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      #timer-display.urgent {
+        color: #ff2200;
+        animation: pulse 0.5s infinite alternate;
+      }
+
+      @keyframes pulse {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0.3;
+        }
+      }
+
+      #duration-input {
+        width: 100%;
+        padding: 8px 10px;
+        background: #0f3460;
+        border: 1px solid #1a4a80;
+        border-radius: 8px;
+        color: white;
+        font-size: 14px;
+        outline: none;
+        cursor: pointer;
+      }
+
+      #start-btn {
+        width: 100%;
+        padding: 10px;
+        background: #e94560;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      #start-btn:hover {
+        background: #c73050;
+      }
+
+      /* SCOREBOARD */
+      #scoreboard {
         background: #16213e;
         border: 1px solid #0f3460;
         border-radius: 12px;
@@ -69,7 +153,7 @@
       #score-list {
         list-style: none;
         padding: 8px 0;
-        max-height: 500px;
+        max-height: 380px;
         overflow-y: auto;
       }
 
@@ -85,7 +169,6 @@
       #score-list li:last-child {
         border-bottom: none;
       }
-
       #score-list li.me {
         background: rgba(233, 69, 96, 0.15);
       }
@@ -97,7 +180,6 @@
         text-align: center;
         flex-shrink: 0;
       }
-
       .rank.gold {
         color: #ffd700;
         font-weight: bold;
@@ -120,7 +202,6 @@
         border-radius: 2px;
         flex-shrink: 0;
       }
-
       .player-name {
         flex: 1;
         font-size: 11px;
@@ -129,7 +210,6 @@
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-
       .player-score {
         font-size: 14px;
         font-weight: bold;
@@ -137,19 +217,127 @@
         min-width: 20px;
         text-align: right;
       }
+
+      /* GAME OVER OVERLAY */
+      #game-over-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.88);
+        z-index: 100;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #game-over-overlay.visible {
+        display: flex;
+      }
+
+      #game-over-box {
+        background: #16213e;
+        border: 2px solid #e94560;
+        border-radius: 16px;
+        padding: 36px 48px;
+        min-width: 360px;
+        box-shadow: 0 0 50px rgba(233, 69, 96, 0.5);
+        text-align: center;
+      }
+
+      #game-over-box h2 {
+        color: #e94560;
+        font-size: 30px;
+        margin-bottom: 28px;
+        letter-spacing: 3px;
+      }
+
+      #final-ranking {
+        list-style: none;
+        margin-bottom: 28px;
+      }
+
+      #final-ranking li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #0f3460;
+        color: #e0e0f0;
+        font-size: 14px;
+      }
+
+      #final-ranking li:last-child {
+        border-bottom: none;
+      }
+      #final-ranking li.winner {
+        color: #ffd700;
+        font-size: 17px;
+      }
+      .final-rank {
+        width: 28px;
+        text-align: center;
+      }
+      .final-name {
+        flex: 1;
+        text-align: left;
+      }
+      .final-score {
+        font-weight: bold;
+        color: #e94560;
+      }
+
+      #play-again-btn {
+        padding: 12px 36px;
+        background: #e94560;
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      #play-again-btn:hover {
+        background: #c73050;
+      }
     </style>
     <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
+    <div id="game-over-overlay">
+      <div id="game-over-box">
+        <h2>🏆 FIM DE JOGO</h2>
+        <ol id="final-ranking"></ol>
+        <button id="play-again-btn">▶ Jogar Novamente</button>
+      </div>
+    </div>
+
     <div id="game-container">
       <canvas id="screen" width="480" height="480"></canvas>
 
-      <div id="scoreboard">
-        <div id="scoreboard-header">
-          <span>🏆 Placar</span>
-          <span class="player-count" id="player-count">0 jogadores</span>
+      <div id="side-panel">
+        <div id="countdown-control">
+          <div id="countdown-control-header">⏱ Tempo de Jogo</div>
+          <div id="countdown-control-body">
+            <div id="timer-display">--:--</div>
+            <select id="duration-input">
+              <option value="60">1 minuto</option>
+              <option value="120">2 minutos</option>
+              <option value="180" selected>3 minutos</option>
+              <option value="300">5 minutos</option>
+              <option value="600">10 minutos</option>
+            </select>
+            <button id="start-btn">▶ Iniciar Partida</button>
+          </div>
         </div>
-        <ol id="score-list"></ol>
+
+        <div id="scoreboard">
+          <div id="scoreboard-header">
+            <span>🏆 Placar</span>
+            <span class="player-count" id="player-count">0 jogadores</span>
+          </div>
+          <ol id="score-list"></ol>
+        </div>
       </div>
     </div>
 
@@ -162,29 +350,104 @@
       const quadSize = 32;
       const canvas = document.getElementById("screen");
       const context = canvas.getContext("2d");
-
       context.scale(quadSize, quadSize);
 
       const game = createGame();
       const keyboardListener = createKeyboardListener(document);
-
       const socket = io();
 
+      // --- Timer ---
+      const timerDisplay = document.getElementById("timer-display");
+
+      function formatTime(s) {
+        return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+      }
+
+      socket.on("countdown-update", ({ timeRemaining }) => {
+        timerDisplay.textContent = formatTime(timeRemaining);
+        timerDisplay.classList.toggle("urgent", timeRemaining <= 10);
+      });
+
+      document.getElementById("start-btn").addEventListener("click", () => {
+        const duration = parseInt(
+          document.getElementById("duration-input").value,
+        );
+        socket.emit("start-game", { duration });
+      });
+
+      document
+        .getElementById("play-again-btn")
+        .addEventListener("click", () => {
+          document
+            .getElementById("game-over-overlay")
+            .classList.remove("visible");
+        });
+
+      // --- Game Over ---
+      socket.on("game-over", ({ ranking }) => {
+        const medals = ["🥇", "🥈", "🥉"];
+        const list = document.getElementById("final-ranking");
+        list.innerHTML = "";
+
+        ranking.forEach(({ playerID, score }, index) => {
+          const li = document.createElement("li");
+          if (index === 0) li.classList.add("winner");
+
+          const medal = index < 3 ? medals[index] : `${index + 1}º`;
+          const isMe = playerID === socket.id;
+
+          li.innerHTML = `
+            <span class="final-rank">${medal}</span>
+            <span class="final-name">${playerID.substring(0, 10)}...${isMe ? " (você)" : ""}</span>
+            <span class="final-score">${score} pts</span>
+          `;
+          list.appendChild(li);
+        });
+
+        document.getElementById("game-over-overlay").classList.add("visible");
+        timerDisplay.textContent = "00:00";
+      });
+
+      socket.on("reset-scores", () => {
+        for (const id in game.state.players) {
+          game.state.players[id].score = 0;
+        }
+        updateScoreboard();
+      });
+
+      // --- Connect ---
       socket.on("connect", () => {
         const playerID = socket.id;
-        console.log(`Player connected on Client with ID: ${playerID}`);
+
+        const sprites = {
+          lv1: new Image(),
+          lv2: new Image(),
+          lv3: new Image(),
+          lv4: new Image(),
+        };
+        sprites.lv1.src = "sprite_lv1.png";
+        sprites.lv2.src = "sprite_lv2.png";
+        sprites.lv3.src = "sprite_lv3.png";
+        sprites.lv4.src = "sprite_lv4.png";
 
         const imgApple = new Image();
         imgApple.onload = () => {
-          renderScreen(game, requestAnimationFrame, canvas, imgApple, playerID);
+          renderScreen(
+            game,
+            requestAnimationFrame,
+            canvas,
+            imgApple,
+            playerID,
+            sprites,
+          );
         };
         imgApple.src = "energy_pixel.png";
       });
 
+      // --- Scoreboard ---
       function updateScoreboard() {
         const playerID = socket.id;
-        const players = game.state.players;
-        const sorted = Object.entries(players).sort(
+        const sorted = Object.entries(game.state.players).sort(
           (a, b) => (b[1].score ?? 0) - (a[1].score ?? 0),
         );
 
@@ -193,7 +456,6 @@
 
         const list = document.getElementById("score-list");
         list.innerHTML = "";
-
         const medals = ["🥇", "🥈", "🥉"];
 
         sorted.forEach(([id, player], index) => {
@@ -215,7 +477,6 @@
       }
 
       socket.on("setup", (state) => {
-        const playerID = socket.id;
         game.setState(state);
 
         const gridSize = state.gridSize || 10;
@@ -223,7 +484,7 @@
         canvas.height = gridSize * quadSize;
         context.setTransform(quadSize, 0, 0, quadSize, 0, 0);
 
-        keyboardListener.registerPlayerID(playerID);
+        keyboardListener.registerPlayerID(socket.id);
         keyboardListener.subscribe(game.movePlayer);
         keyboardListener.subscribe((command) => {
           socket.emit("move-player", command);
@@ -232,35 +493,25 @@
         updateScoreboard();
       });
 
-      socket.on("add-players", (command) => {
-        game.addPlayers(command);
+      socket.on("add-players", (cmd) => {
+        game.addPlayers(cmd);
         updateScoreboard();
       });
-
-      socket.on("remove-players", (command) => {
-        game.removePlayers(command);
+      socket.on("remove-players", (cmd) => {
+        game.removePlayers(cmd);
         updateScoreboard();
       });
 
       socket.on("move-player", (command) => {
-        if (command.playerID !== socket.id) {
-          game.movePlayer(command);
-        }
+        if (command.playerID !== socket.id) game.movePlayer(command);
       });
 
-      socket.on("add-energy", (command) => {
-        game.addEnergy(command);
-      });
-
-      socket.on("remove-energy", (command) => {
-        game.removeEnergy(command);
-      });
+      socket.on("add-energy", (cmd) => game.addEnergy(cmd));
+      socket.on("remove-energy", (cmd) => game.removeEnergy(cmd));
 
       socket.on("score-update", (command) => {
         const player = game.state.players[command.playerID];
-        if (player) {
-          player.score = command.score;
-        }
+        if (player) player.score = command.score;
 
         if (command.playerID === socket.id) {
           if (
@@ -275,8 +526,16 @@
             playPointSound();
           }
         }
-
         updateScoreboard();
+      });
+
+      // atualiza posição da vítima após colisão
+      socket.on("player-collision", (command) => {
+        const victim = game.state.players[command.victimID];
+        if (victim) {
+          victim.x = command.victimX;
+          victim.y = command.victimY;
+        }
       });
     </script>
   </body>

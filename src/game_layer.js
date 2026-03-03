@@ -1,6 +1,4 @@
 export default function createGame() {
-  //JOGO LAYER
-
   const state = {
     players: {},
     energy: {},
@@ -11,7 +9,6 @@ export default function createGame() {
 
   function start() {
     const frequency = 2000;
-
     setInterval(addEnergy, frequency);
   }
 
@@ -40,29 +37,15 @@ export default function createGame() {
         ? command.playerY
         : Math.floor(Math.random() * state.gridSize);
 
-    state.players[playerID] = {
-      x: playerX,
-      y: playerY,
-      score: 0,
-    };
+    state.players[playerID] = { x: playerX, y: playerY, score: 0 };
 
-    notifyAll({
-      type: "add-players",
-      playerID: playerID,
-      playerX: playerX,
-      playerY: playerY,
-    });
+    notifyAll({ type: "add-players", playerID, playerX, playerY });
   }
 
   function removePlayers(command) {
     const playerID = command.playerID;
-
     delete state.players[playerID];
-
-    notifyAll({
-      type: "remove-players",
-      playerID: playerID,
-    });
+    notifyAll({ type: "remove-players", playerID });
   }
 
   function addEnergy(command) {
@@ -76,28 +59,14 @@ export default function createGame() {
       ? command.energyY
       : Math.floor(Math.random() * state.gridSize);
 
-    state.energy[energyID] = {
-      x: energyX,
-      y: energyY,
-    };
-
-    notifyAll({
-      type: "add-energy",
-      energyID: energyID,
-      energyX: energyX,
-      energyY: energyY,
-    });
+    state.energy[energyID] = { x: energyX, y: energyY };
+    notifyAll({ type: "add-energy", energyID, energyX, energyY });
   }
 
   function removeEnergy(command) {
     const energyID = command.energyID;
-
     delete state.energy[energyID];
-
-    notifyAll({
-      type: "remove-energy",
-      energyID: energyID,
-    });
+    notifyAll({ type: "remove-energy", energyID });
   }
 
   function movePlayer(command) {
@@ -105,48 +74,107 @@ export default function createGame() {
 
     const grid = state.gridSize;
 
-    const acepptedMoves = {
+    const acceptedMoves = {
       ArrowUp(player) {
-        player.y = (player.y - 1 + grid) % grid; // sai pelo topo → aparece embaixo
+        player.y = (player.y - 1 + grid) % grid;
       },
       ArrowDown(player) {
-        player.y = (player.y + 1) % grid; // sai embaixo → aparece no topo
+        player.y = (player.y + 1) % grid;
       },
       ArrowLeft(player) {
-        player.x = (player.x - 1 + grid) % grid; // sai pela esquerda → aparece na direita
+        player.x = (player.x - 1 + grid) % grid;
       },
       ArrowRight(player) {
-        player.x = (player.x + 1) % grid; // sai pela direita → aparece na esquerda
+        player.x = (player.x + 1) % grid;
       },
     };
 
-    const keyPressed = command.keyPressed;
-    const playerID = command.playerID;
-    const player = state.players[command.playerID];
-    const moveFunction = acepptedMoves[keyPressed];
+    const { keyPressed, playerID } = command;
+    const player = state.players[playerID];
+    const moveFunction = acceptedMoves[keyPressed];
 
     if (player && moveFunction) {
       moveFunction(player);
       checkEnergyCollision(playerID);
+      checkPlayerCollision(playerID, keyPressed);
     }
   }
 
   function checkEnergyCollision(playerID) {
     const player = state.players[playerID];
-    console.log(`Checking energy collision for player ${playerID}`);
 
     for (const energyID in state.energy) {
       const energy = state.energy[energyID];
 
       if (player.x === energy.x && player.y === energy.y) {
-        console.log(`Player ${playerID} collected energy ${energyID}`);
         player.score += 1;
         removeEnergy({ energyID });
-        notifyAll({
-          type: "score-update",
-          playerID: playerID,
-          score: player.score,
-        });
+        notifyAll({ type: "score-update", playerID, score: player.score });
+      }
+    }
+  }
+
+  function checkPlayerCollision(attackerID, keyPressed) {
+    const attacker = state.players[attackerID];
+    const grid = state.gridSize;
+
+    const pushMap = {
+      ArrowUp: (p) => {
+        p.y = (p.y - 2 + grid) % grid;
+      },
+      ArrowDown: (p) => {
+        p.y = (p.y + 2) % grid;
+      },
+      ArrowLeft: (p) => {
+        p.x = (p.x - 2 + grid) % grid;
+      },
+      ArrowRight: (p) => {
+        p.x = (p.x + 2) % grid;
+      },
+    };
+
+    for (const victimID in state.players) {
+      if (victimID === attackerID) continue;
+
+      const victim = state.players[victimID];
+
+      if (attacker.x === victim.x && attacker.y === victim.y) {
+        // quem tem mais pontos é o "grandão"
+        const biggerID = attacker.score >= victim.score ? attackerID : victimID;
+        const smallerID =
+          attacker.score >= victim.score ? victimID : attackerID;
+        const bigger = state.players[biggerID];
+        const smaller = state.players[smallerID];
+
+        if (bigger.score > smaller.score) {
+          const stolen = Math.floor(smaller.score * 0.2);
+
+          bigger.score += stolen;
+          smaller.score = Math.max(0, smaller.score - stolen);
+
+          // empurra o menor 2 casas na mesma direção do movimento
+          const push = pushMap[keyPressed];
+          if (push) push(smaller);
+
+          notifyAll({
+            type: "score-update",
+            playerID: biggerID,
+            score: bigger.score,
+          });
+          notifyAll({
+            type: "score-update",
+            playerID: smallerID,
+            score: smaller.score,
+          });
+          notifyAll({
+            type: "player-collision",
+            attackerID: biggerID,
+            victimID: smallerID,
+            stolen,
+            victimX: smaller.x,
+            victimY: smaller.y,
+          });
+        }
       }
     }
   }

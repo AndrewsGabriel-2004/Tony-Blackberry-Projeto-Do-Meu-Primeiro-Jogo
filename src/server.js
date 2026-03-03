@@ -12,30 +12,70 @@ app.use(express.static("src"));
 const game = createGame();
 game.start();
 
+// --- Countdown ---
+let countdownInterval = null;
+let timeRemaining = 0;
+let gameRunning = false;
+
+function startCountdown(seconds) {
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  timeRemaining = seconds;
+  gameRunning = true;
+
+  sockets.emit("countdown-update", { timeRemaining });
+
+  countdownInterval = setInterval(() => {
+    timeRemaining -= 1;
+    sockets.emit("countdown-update", { timeRemaining });
+
+    if (timeRemaining <= 0) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      gameRunning = false;
+
+      const ranking = Object.entries(game.state.players)
+        .map(([id, p]) => ({ playerID: id, score: p.score }))
+        .sort((a, b) => b.score - a.score);
+
+      sockets.emit("game-over", { ranking });
+    }
+  }, 1000);
+}
+
 game.subscribe((command) => {
   console.log(`> Emitting command: ${command.type}`);
-
   sockets.emit(command.type, command);
 });
 
 sockets.on("connection", (socket) => {
   const playerID = socket.id;
-  console.log(`Player connected on Server with ID: ${socket.id}`);
+  console.log(`Player connected: ${playerID}`);
 
-  game.addPlayers({ playerID: playerID });
-  console.log(game.state);
-
+  game.addPlayers({ playerID });
   socket.emit("setup", game.state);
 
+  if (gameRunning) {
+    socket.emit("countdown-update", { timeRemaining });
+  }
+
+  socket.on("start-game", ({ duration }) => {
+    console.log(`Starting game: ${duration}s`);
+    for (const id in game.state.players) {
+      game.state.players[id].score = 0;
+    }
+    sockets.emit("reset-scores");
+    startCountdown(duration);
+  });
+
   socket.on("disconnect", () => {
-    game.removePlayers({ playerID: playerID });
-    console.log(`Player disconnected on Server with ID: ${playerID}`);
+    game.removePlayers({ playerID });
+    console.log(`Player disconnected: ${playerID}`);
   });
 
   socket.on("move-player", (command) => {
-    command.playerID = playerID; //aqui é para garantir que o playerID do comando seja o mesmo do player que enviou o comando, para evitar que um jogador possa enviar comandos para outro jogador
-    command.type = "move-player"; //aqui é para garantir que o tipo do comando seja "move-player", para evitar que um jogador possa enviar comandos com tipos diferentes, que poderiam ser usados para explorar vulnerabilidades no jogo
-
+    command.playerID = playerID;
+    command.type = "move-player";
     game.movePlayer(command);
   });
 });
