@@ -6,10 +6,22 @@ export default function createGame() {
   };
 
   const observers = [];
+  let energyInterval = null;
 
   function start() {
-    const frequency = 2000;
-    setInterval(addEnergy, frequency);
+    // energia só começa quando o timer iniciar — ver startEnergySpawn()
+  }
+
+  function startEnergySpawn() {
+    if (energyInterval) clearInterval(energyInterval);
+    energyInterval = setInterval(addEnergy, 2000);
+  }
+
+  function stopEnergySpawn() {
+    if (energyInterval) {
+      clearInterval(energyInterval);
+      energyInterval = null;
+    }
   }
 
   function subscribe(observerFunction) {
@@ -145,44 +157,46 @@ export default function createGame() {
 
       const victim = state.players[victimID];
 
-      if (attacker.x === victim.x && attacker.y === victim.y) {
-        // quem tem mais pontos é o "grandão"
-        const biggerID = attacker.score >= victim.score ? attackerID : victimID;
-        const smallerID =
-          attacker.score >= victim.score ? victimID : attackerID;
-        const bigger = state.players[biggerID];
-        const smaller = state.players[smallerID];
+      if (attacker.x !== victim.x || attacker.y !== victim.y) continue;
 
-        if (bigger.score > smaller.score) {
-          const stolen = Math.floor(smaller.score * 0.2);
+      // mesma pontuação → nada acontece
+      if (attacker.score === victim.score) continue;
 
-          bigger.score += stolen;
-          smaller.score = Math.max(0, smaller.score - stolen);
+      const biggerID = attacker.score > victim.score ? attackerID : victimID;
+      const smallerID = attacker.score > victim.score ? victimID : attackerID;
+      const bigger = state.players[biggerID];
+      const smaller = state.players[smallerID];
 
-          // empurra o menor 2 casas na mesma direção do movimento
-          const push = pushMap[keyPressed];
-          if (push) push(smaller);
+      // faixa de roubo baseada na pontuação do menor
+      let stolen;
+      if (smaller.score > 50) stolen = 20;
+      else if (smaller.score > 20) stolen = 10;
+      else stolen = 5;
 
-          notifyAll({
-            type: "score-update",
-            playerID: biggerID,
-            score: bigger.score,
-          });
-          notifyAll({
-            type: "score-update",
-            playerID: smallerID,
-            score: smaller.score,
-          });
-          notifyAll({
-            type: "player-collision",
-            attackerID: biggerID,
-            victimID: smallerID,
-            stolen,
-            victimX: smaller.x,
-            victimY: smaller.y,
-          });
-        }
-      }
+      bigger.score += stolen;
+      smaller.score = Math.max(0, smaller.score - stolen);
+
+      const push = pushMap[keyPressed];
+      if (push) push(smaller);
+
+      notifyAll({
+        type: "score-update",
+        playerID: biggerID,
+        score: bigger.score,
+      });
+      notifyAll({
+        type: "score-update",
+        playerID: smallerID,
+        score: smaller.score,
+      });
+      notifyAll({
+        type: "player-collision",
+        attackerID: biggerID,
+        victimID: smallerID,
+        stolen,
+        victimX: smaller.x,
+        victimY: smaller.y,
+      });
     }
   }
 
@@ -197,5 +211,7 @@ export default function createGame() {
     subscribe,
     start,
     clearEnergy,
+    startEnergySpawn,
+    stopEnergySpawn,
   };
 }

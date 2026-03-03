@@ -24,6 +24,7 @@ function startCountdown(seconds) {
   gameRunning = true;
 
   game.clearEnergy();
+  game.startEnergySpawn(); // frutas começam junto com o timer
 
   sockets.emit("countdown-update", { timeRemaining });
 
@@ -36,6 +37,7 @@ function startCountdown(seconds) {
       countdownInterval = null;
       gameRunning = false;
 
+      game.stopEnergySpawn(); // para o spawn ao fim da partida
       game.clearEnergy();
 
       const ranking = Object.entries(game.state.players)
