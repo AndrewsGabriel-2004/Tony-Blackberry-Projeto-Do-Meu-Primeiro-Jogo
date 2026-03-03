@@ -157,6 +157,7 @@
       import createKeyboardListener from "./input_layer.js";
       import createGame from "./game_layer.js";
       import renderScreen from "./apresentation_layer.js";
+      import { playPointSound, play1UpSound } from "./sound_layer.js";
 
       const quadSize = 32;
       const canvas = document.getElementById("screen");
@@ -260,6 +261,21 @@
         if (player) {
           player.score = command.score;
         }
+
+        if (command.playerID === socket.id) {
+          if (
+            command.score % 100 === 0 ||
+            command.score === 10 ||
+            command.score === 20 ||
+            command.score === 50 ||
+            command.score === 70
+          ) {
+            play1UpSound();
+          } else {
+            playPointSound();
+          }
+        }
+
         updateScoreboard();
       });
     </script>

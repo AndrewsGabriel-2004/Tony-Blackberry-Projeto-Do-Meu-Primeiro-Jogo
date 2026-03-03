@@ -32,9 +32,13 @@ export default function createGame() {
   function addPlayers(command) {
     const playerID = command.playerID;
     const playerX =
-      "playerX" in command ? command.playerX : Math.floor(Math.random() * 10);
+      "playerX" in command
+        ? command.playerX
+        : Math.floor(Math.random() * state.gridSize);
     const playerY =
-      "playerY" in command ? command.playerY : Math.floor(Math.random() * 10);
+      "playerY" in command
+        ? command.playerY
+        : Math.floor(Math.random() * state.gridSize);
 
     state.players[playerID] = {
       x: playerX,
@@ -65,8 +69,12 @@ export default function createGame() {
     const energyID = command
       ? command.energyID
       : Math.floor(Math.random() * 10000000);
-    const energyX = command ? command.energyX : Math.floor(Math.random() * 10);
-    const energyY = command ? command.energyY : Math.floor(Math.random() * 10);
+    const energyX = command
+      ? command.energyX
+      : Math.floor(Math.random() * state.gridSize);
+    const energyY = command
+      ? command.energyY
+      : Math.floor(Math.random() * state.gridSize);
 
     state.energy[energyID] = {
       x: energyX,
