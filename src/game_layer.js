@@ -63,6 +63,13 @@ export default function createGame() {
     notifyAll({ type: "add-energy", energyID, energyX, energyY });
   }
 
+  function clearEnergy() {
+    for (const energyID in state.energy) {
+      delete state.energy[energyID];
+    }
+    notifyAll({ type: "clear-energy" });
+  }
+
   function removeEnergy(command) {
     const energyID = command.energyID;
     delete state.energy[energyID];
@@ -189,5 +196,6 @@ export default function createGame() {
     setState,
     subscribe,
     start,
+    clearEnergy,
   };
 }

@@ -23,6 +23,8 @@ function startCountdown(seconds) {
   timeRemaining = seconds;
   gameRunning = true;
 
+  game.clearEnergy();
+
   sockets.emit("countdown-update", { timeRemaining });
 
   countdownInterval = setInterval(() => {
@@ -33,6 +35,8 @@ function startCountdown(seconds) {
       clearInterval(countdownInterval);
       countdownInterval = null;
       gameRunning = false;
+
+      game.clearEnergy();
 
       const ranking = Object.entries(game.state.players)
         .map(([id, p]) => ({ playerID: id, score: p.score }))

@@ -529,12 +529,18 @@
         updateScoreboard();
       });
 
-      // atualiza posição da vítima após colisão
+      // CORRETO — no mesmo nível dos outros listeners
       socket.on("player-collision", (command) => {
         const victim = game.state.players[command.victimID];
         if (victim) {
           victim.x = command.victimX;
           victim.y = command.victimY;
+        }
+      });
+
+      socket.on("clear-energy", () => {
+        for (const id in game.state.energy) {
+          delete game.state.energy[id];
         }
       });
     </script>
